@@ -170,12 +170,12 @@ function wrap (Vue, Component) {
   class CustomElement extends HTMLElement {
     constructor () {
       super();
-      this.attachShadow({ mode: 'open' });
+      //this.attachShadow({ mode: 'open' });
 
       const wrapper = this._wrapper = new Vue({
         name: 'shadow-root',
         customElement: this,
-        shadowRoot: this.shadowRoot,
+        //shadowRoot: this.shadowRoot,
         data () {
           return {
             props: {},
@@ -249,7 +249,8 @@ function wrap (Vue, Component) {
           this.childNodes
         ));
         wrapper.$mount();
-        this.shadowRoot.appendChild(wrapper.$el);
+        //this.shadowRoot.appendChild(wrapper.$el);
+        this.appendChild(wrapper.$el);
       } else {
         callHooks(this.vueComponent, 'activated');
       }
