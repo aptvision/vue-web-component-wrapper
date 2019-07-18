@@ -81,12 +81,12 @@ export default function wrap (Vue, Component) {
   class CustomElement extends HTMLElement {
     constructor () {
       const self = super()
-      //self.attachShadow({ mode: 'open' })
+      self.attachShadow({ mode: 'open' })
 
       const wrapper = self._wrapper = new Vue({
         name: 'shadow-root',
         customElement: self,
-        //shadowRoot: self.shadowRoot,
+        shadowRoot: self.shadowRoot,
         data () {
           return {
             props: {},
@@ -154,13 +154,27 @@ export default function wrap (Vue, Component) {
             syncInitialAttributes()
           })
         }
+        
+        /*--------CUSTOM -------- adding vue css and fonts to shadow element*/
+        let vueCss = document.querySelector('#vue-css');
+        if (vueCss) {
+            this.shadowRoot.appendChild(vueCss.cloneNode( true ));
+        }
+
+        let vueFonts = document.querySelector('#vue-fonts');
+        if (vueFonts) {
+            this.shadowRoot.appendChild(vueFonts.cloneNode( true ));
+        }
+        /*-----------------------------------------------------------------*/
+        
         // initialize children
         wrapper.slotChildren = Object.freeze(toVNodes(
           wrapper.$createElement,
           this.childNodes
         ))
         wrapper.$mount()
-        this.appendChild(wrapper.$el)
+         
+        this.shadowRoot.appendChild(wrapper.$el)
       } else {
         callHooks(this.vueComponent, 'activated')
       }
