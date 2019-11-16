@@ -82,11 +82,15 @@ export default function wrap (Vue, Component) {
     constructor () {
       const self = super()
       self.attachShadow({ mode: 'open' })
-
+	  const vuetify = new Vuetify({});
+	  const store = new Vuex.Store({});
+		  
       const wrapper = self._wrapper = new Vue({
         name: 'shadow-root',
         customElement: self,
         shadowRoot: self.shadowRoot,
+        vuetify,
+        store,
         data () {
           return {
             props: {},
@@ -159,6 +163,11 @@ export default function wrap (Vue, Component) {
         let vueCss = document.querySelector('#vue-css');
         if (vueCss) {
             this.shadowRoot.appendChild(vueCss.cloneNode( true ));
+        }
+
+		let vueThemeCss = document.querySelector('#vue-theme-css');
+        if (vueThemeCss) {
+            this.shadowRoot.appendChild(vueThemeCss.cloneNode( true ));
         }
 
         let vueFonts = document.querySelector('#vue-fonts');

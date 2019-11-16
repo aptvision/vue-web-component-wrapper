@@ -169,13 +169,17 @@ function wrap (Vue, Component) {
 
   class CustomElement extends HTMLElement {
     constructor () {
-      super();
-      //this.attachShadow({ mode: 'open' });
-
-      const wrapper = this._wrapper = new Vue({
+      const self = super();
+      self.attachShadow({ mode: 'open' });
+	  const vuetify = new Vuetify({});
+	  const store = new Vuex.Store({});
+		  
+      const wrapper = self._wrapper = new Vue({
         name: 'shadow-root',
-        customElement: this,
-        //shadowRoot: this.shadowRoot,
+        customElement: self,
+        shadowRoot: self.shadowRoot,
+        vuetify,
+        store,
         data () {
           return {
             props: {},
@@ -195,8 +199,8 @@ function wrap (Vue, Component) {
         let hasChildrenChange = false;
         for (let i = 0; i < mutations.length; i++) {
           const m = mutations[i];
-          if (isInitialized && m.type === 'attributes' && m.target === this) {
-            syncAttribute(this, m.attributeName);
+          if (isInitialized && m.type === 'attributes' && m.target === self) {
+            syncAttribute(self, m.attributeName);
           } else {
             hasChildrenChange = true;
           }
@@ -204,11 +208,11 @@ function wrap (Vue, Component) {
         if (hasChildrenChange) {
           wrapper.slotChildren = Object.freeze(toVNodes(
             wrapper.$createElement,
-            this.childNodes
+            self.childNodes
           ));
         }
       });
-      observer.observe(this, {
+      observer.observe(self, {
         childList: true,
         subtree: true,
         characterData: true,
@@ -243,14 +247,32 @@ function wrap (Vue, Component) {
             syncInitialAttributes();
           });
         }
+        
+        /*--------CUSTOM -------- adding vue css and fonts to shadow element*/
+        let vueCss = document.querySelector('#vue-css');
+        if (vueCss) {
+            this.shadowRoot.appendChild(vueCss.cloneNode( true ));
+        }
+
+		let vueThemeCss = document.querySelector('#vue-theme-css');
+        if (vueThemeCss) {
+            this.shadowRoot.appendChild(vueThemeCss.cloneNode( true ));
+        }
+
+        let vueFonts = document.querySelector('#vue-fonts');
+        if (vueFonts) {
+            this.shadowRoot.appendChild(vueFonts.cloneNode( true ));
+        }
+        /*-----------------------------------------------------------------*/
+        
         // initialize children
         wrapper.slotChildren = Object.freeze(toVNodes(
           wrapper.$createElement,
           this.childNodes
         ));
         wrapper.$mount();
-        //this.shadowRoot.appendChild(wrapper.$el);
-        this.appendChild(wrapper.$el);
+         
+        this.shadowRoot.appendChild(wrapper.$el);
       } else {
         callHooks(this.vueComponent, 'activated');
       }
